@@ -3,3 +3,21 @@
 
 # Xcode user settings
 xcuserdata/
+
+# Builds
+builds/*
+!builds/README.md
+
+# Files
+files/*
+!files/example.config
+!files/README.md
+!files/wx64/README.md
+
+# Graphics
+graphics/*
+!graphics/README.md
+
+# Source
+source/*
+!source/README.md
