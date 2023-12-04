@@ -29,10 +29,9 @@ fi
 
 # MARK: Set variables
 
-local project="source/minivmac.xcodeproj/project.pbxproj"
-local infoplist="source/cfg/Info.plist"
 local buildpath="builds"
 local filespath="files"
+local sourcepath="source"
 local success=false
 
 local appname=
@@ -83,8 +82,10 @@ then
 
 	print "Bundle ID: ${bundleid}"
 
-	local resourcespath="source/mnvm_dat"
-	local iconpath="source/src/ICONAPPO.icns"
+	local projectpath="${sourcepath}/minivmac.xcodeproj/project.pbxproj"
+	local infopath="${sourcepath}/cfg/Info.plist"
+	local resourcespath="${sourcepath}/mnvm_dat"
+	local iconpath="${sourcepath}/src/ICONAPPO.icns"
 
 	rm -Rf "${resourcespath}"
 	mkdir -p "${resourcespath}"
@@ -93,7 +94,7 @@ then
 
 	iconutil -c icns "${filespath}/${filebase}.iconset" -o "${iconpath}"
 
-	cd source/
+	cd "${sourcepath}"
 	gcc setup/tool.c -o setup_t
 
 	# https://www.gryphel.com/c/minivmac/options.html
@@ -107,14 +108,27 @@ then
 	chmod +x ./setup.sh
 	./setup.sh
 	cd ../
-	scripts/xcode.py --project $project --info $infoplist \
-		--bundleid $bundleid --name $appname --build $build --version $version
+
+	scripts/xcode.py \
+		--project "${projectpath}" \
+		--info "${infopath}" \
+		--bundleid $bundleid \
+		--name $appname \
+		--build $build \
+		--version $version
 
 	print ""
 	print "Manual steps:"
-	print " - Open source/minivmac.xcodeproj"
-	print " - Add the source/mnvm_dat folder as a reference"
-	print " - Add a Copy Files build phase, destination Wrapper, subpath Contents"
+	print " - Open ${sourcepath}/minivmac.xcodeproj"
+	print " - Add the ${sourcepath}/mnvm_dat folder as a reference, do not choose a target"
+	print " - Add a \"Copy Files\" build phase, destination Wrapper, subpath Contents"
+	if [[ $platform == "mac-x86" ]]
+	then
+		print " - Set the \"Minimum Deployments\" version to 10.13"	
+	fi
+	print " - Under \"Signing & Capabilities\", select a Team"
+	print " - Set \"Signing Certificate\" to \"Sign to Run Locally\""
+	print " - Add the \"Hardened Runtime\" capability"
 	print " - Archive, sign, and notarize the app"
 	print ""
 
