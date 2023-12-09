@@ -40,6 +40,7 @@ local build=
 local bundleid=
 local bundleidx86=
 local filebase=
+local quitmessage="Press Command-Q on your keyboard to quit the current application and return to the desktop. On the desktop, open the ;[Special;{ menu and choose ;[Shut Down.;{ You can then close ^p safely."
 
 while read line
 do
@@ -54,11 +55,12 @@ do
 			"bundle-id")     bundleid=$value;;
 			"bundle-id-x86") bundleidx86=$value;;
 			"file-base")     filebase=$value;;
+			"quit-message")  quitmessage=$value;;
 		esac
 	fi
 done < "${filespath}/${config}.config"
 
-if [[ -z $appname || -z $version || -z $build || -z $bundleid || -z $filebase ]]
+if [[ -z $appname || -z $version || -z $build || -z $bundleid || -z $filebase || -z $quitmessage ]]
 then
 	echo >&2 "Your config file is incomplete"
 	exit 1
@@ -116,6 +118,11 @@ then
 		--name $appname \
 		--build $build \
 		--version $version
+
+	scripts/redefine.py \
+		--file "source/src/STRCNENG.h" \
+		--key kStrQuitWarningMessage \
+		--string "${quitmessage}"
 
 	print ""
 	print "Manual steps:"
