@@ -12,6 +12,7 @@ builds/*
 files/*
 !files/example.config
 !files/README.md
+!files/shortcut.lnk
 !files/wx64/README.md
 
 # Graphics

@@ -151,8 +151,14 @@ then
 	cp "${filespath}/wx64/Mini vMac.exe" "${resourcespath}/Mini vMac.exe"
 	cp "${filespath}/vMac.ROM" "${resourcespath}/vMac.ROM"
 	cp "${filespath}/${filebase}.dsk" "${resourcespath}/disk1.dsk"
-	echo "@echo off\r\nstart /b .\Resources\\\"Mini vMac.exe\"" > \
-		"${basepath}/${appname}.bat"
+
+	# Create a shortcut to the exe. This is a pre-made shortcut that uses a
+	# relative path: %COMSPEC% /C "start /b .\Resources\^"Mini vMac.exe^""
+	cp "${filespath}/shortcut.lnk" "${basepath}/${appname}.lnk"
+
+	# Create a bat file that launches the exe, an alternative to the shortcut
+	# echo "@echo off\r\nstart /b .\Resources\\\"Mini vMac.exe\"" > \
+	#	"${basepath}/${appname}.bat"
 
 	cd "${buildpath}"
 	rm -f "${zipname}"
