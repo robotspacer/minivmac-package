@@ -11,6 +11,7 @@ builds/*
 # Files
 files/*
 !files/example.config
+!files/example.iconset
 !files/README.md
 !files/shortcut.lnk
 !files/wx64/README.md
