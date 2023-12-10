@@ -39,6 +39,7 @@ local version=
 local build=
 local bundleid=
 local bundleidx86=
+local team=
 local filebase=
 local quitmessage="Press Command-Q on your keyboard to quit the current application and return to the desktop. On the desktop, open the ;[Special;{ menu and choose ;[Shut Down.;{ You can then close ^p safely."
 
@@ -54,13 +55,14 @@ do
 			"build")         build=$value;;
 			"bundle-id")     bundleid=$value;;
 			"bundle-id-x86") bundleidx86=$value;;
+			"team")          team=$value;;
 			"file-base")     filebase=$value;;
 			"quit-message")  quitmessage=$value;;
 		esac
 	fi
 done < "${filespath}/${config}.config"
 
-if [[ -z $appname || -z $version || -z $build || -z $bundleid || -z $filebase || -z $quitmessage ]]
+if [[ -z $appname || -z $version || -z $build || -z $bundleid || -z $team || -z $filebase || -z $quitmessage ]]
 then
 	echo >&2 "Your config file is incomplete"
 	exit 1
@@ -71,12 +73,15 @@ fi
 if [[ $platform == "mac" || $platform == "mac-x86" ]]
 then
 
+	local minimum=11.0
+
 	if [[ $platform == "mac-x86" ]]
 	then
 		print "Building Mac (Intel) version…"
 		if [[ ! -z $bundleidx86 ]]
 		then
 			bundleid=$bundleidx86
+			minimum=10.13
 		fi
 	else
 		print "Building Mac (Apple Silicon) version…"
@@ -117,7 +122,9 @@ then
 		--bundleid $bundleid \
 		--name $appname \
 		--build $build \
-		--version $version
+		--version $version \
+		--team $team \
+		--minimum $minimum
 
 	scripts/redefine.py \
 		--file "source/src/STRCNENG.h" \
@@ -126,17 +133,10 @@ then
 
 	print ""
 	print "Manual steps:"
-	print " - Open ${sourcepath}/minivmac.xcodeproj"
-	print " - Add the ${sourcepath}/mnvm_dat folder as a reference, do not choose a target"
-	print " - Add a \"Copy Files\" build phase, destination Wrapper, subpath Contents"
-	if [[ $platform == "mac-x86" ]]
-	then
-		print " - Set the \"Minimum Deployments\" version to 10.13"	
-	fi
-	print " - Under \"Signing & Capabilities\", select a Team"
-	print " - Set \"Signing Certificate\" to \"Sign to Run Locally\""
-	print " - Add the \"Hardened Runtime\" capability"
-	print " - Archive, sign, and notarize the app"
+	print " - Open ${sourcepath}/minivmac.xcodeproj."
+	print " - Add a \"Copy Files\" build phase. Select the destination \"Wrapper\" and enter"
+	print "   the subpath \"Contents\". Add the folder \"mnvm_dat\"."
+	print " - Archive, sign, and notarize the app."
 	print ""
 
 	print "Done"

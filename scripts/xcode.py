@@ -20,6 +20,10 @@ parser.add_argument('-b', '--build', dest='build', required=True,
 	help='The build version string')
 parser.add_argument('-v', '--version', dest='version', required=True,
 	help='The marketing version string')
+parser.add_argument('-t', '--team', dest='team', required=True,
+	help='The development team ID')
+parser.add_argument('-m', '--minimum', dest='minimum', required=True,
+	help='The minimum deployment target')
 args = parser.parse_args()
 
 # MARK: Update Xcode project
@@ -28,20 +32,31 @@ print('Updating Xcode project…')
 
 project = XcodeProject.load(args.project)
 
+# Using force allows the folder to be added without a target.
+
+project.add_file('mnvm_dat', target_name='', force=True)
+
 # There's no way to just set a new value--we have to remove all possible values
 # first, then add the new value.
+
+project.add_flags('CODE_SIGN_ENTITLEMENTS', 'minivmac.entitlements')
+
+project.remove_flags('CODE_SIGN_IDENTITY', '')
+project.add_flags('CODE_SIGN_IDENTITY', '-')
+
+project.add_flags('DEVELOPMENT_TEAM', args.team)
+
+project.add_flags('ENABLE_HARDENED_RUNTIME', 'YES')
+
+project.remove_flags('MACOSX_DEPLOYMENT_TARGET', '10.6')
+project.remove_flags('MACOSX_DEPLOYMENT_TARGET', '10.15')
+project.add_flags('MACOSX_DEPLOYMENT_TARGET', args.minimum)
+
 project.remove_flags('PRODUCT_NAME', 'minivmac')
 project.add_flags('PRODUCT_NAME', args.name)
 
 project.remove_flags('PRODUCT_BUNDLE_IDENTIFIER', 'com.gryphel.minivmac')
 project.add_flags('PRODUCT_BUNDLE_IDENTIFIER', args.bundleid)
-
-# This works but it seems to require a full path, and there's no way to add the
-# folder to the correct location, so it's not worthwhile.
-# file_options = FileOptions(create_build_files=False)
-# project.add_folder('/Users/name/path/to/source/mnvm_dat',
-# 	create_groups=False,
-# 	file_options=file_options)
 
 project.save()
 
