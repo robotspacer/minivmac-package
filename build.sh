@@ -41,7 +41,7 @@ local bundleid=
 local bundleidx86=
 local team=
 local filebase=
-local quitmessage="Press Command-Q on your keyboard to quit the current application and return to the desktop. On the desktop, open the ;[Special;{ menu and choose ;[Shut Down.;{ You can then close ^p safely."
+local quitmessage="Open the “File” menu and choose “Quit” or press {command}-Q on your keyboard to quit the current application. On the desktop, open the “Special” menu and choose “Shut Down.” Once the system has shut down, you can close {minivmac}."
 
 while read line
 do
@@ -67,6 +67,20 @@ then
 	echo >&2 "Your config file is incomplete"
 	exit 1
 fi
+
+# MARK: Create the quit message
+
+if [[ $platform == "mac" || $platform == "mac-x86" ]]
+then
+	quitmessage=${quitmessage//{command}/Command}
+else
+	quitmessage=${quitmessage//{command}/Alt}
+fi
+quitmessage=${quitmessage//{minivmac}/^p}
+quitmessage=${quitmessage//“/;[}
+quitmessage=${quitmessage//”/;\{}
+quitmessage=${quitmessage//‘/;]}
+quitmessage=${quitmessage//’/;\}}
 
 # MARK: Build the requested platform
 
