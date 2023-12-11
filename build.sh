@@ -29,19 +29,19 @@ fi
 
 # MARK: Set variables
 
-local buildpath="builds"
-local filespath="files"
-local sourcepath="source"
+local build_path="builds"
+local files_path="files"
+local source_path="source"
 local success=false
 
-local appname=
+local app_name=
 local version=
 local build=
-local bundleid=
-local bundleidintel=
+local bundle_id=
+local bundle_id_intel=
 local team=
-local filebase=
-local quitmessage="Open the “File” menu and choose “Quit” or press {command}-Q on your keyboard to quit the current application. On the desktop, open the “Special” menu and choose “Shut Down.” Once the system has shut down, you can close {minivmac}."
+local file_base=
+local quit_message="Open the “File” menu and choose “Quit” or press {command}-Q on your keyboard to quit the current application. On the desktop, open the “Special” menu and choose “Shut Down.” Once the system has shut down, you can close {minivmac}."
 
 while read line
 do
@@ -50,19 +50,19 @@ do
 		local key=$match[1]
 		local value=$match[2]
 		case $key in
-			"app-name")        appname=$value;;
+			"app-name")        app_name=$value;;
 			"version")         version=$value;;
 			"build")           build=$value;;
-			"bundle-id")       bundleid=$value;;
-			"bundle-id-intel") bundleidintel=$value;;
+			"bundle-id")       bundle_id=$value;;
+			"bundle-id-intel") bundle_id_intel=$value;;
 			"team")            team=$value;;
-			"file-base")       filebase=$value;;
-			"quit-message")    quitmessage=$value;;
+			"file-base")       file_base=$value;;
+			"quit-message")    quit_message=$value;;
 		esac
 	fi
-done < "${filespath}/${config}.config"
+done < "${files_path}/${config}.config"
 
-if [[ -z $appname || -z $version || -z $build || -z $bundleid || -z $team || -z $filebase || -z $quitmessage ]]
+if [[ -z $app_name || -z $version || -z $build || -z $bundle_id || -z $team || -z $file_base || -z $quit_message ]]
 then
 	echo >&2 "Your config file is incomplete"
 	exit 1
@@ -72,15 +72,15 @@ fi
 
 if [[ $platform == "mac" || $platform == "mac-intel" ]]
 then
-	quitmessage=${quitmessage//{command}/Command}
+	quit_message=${quit_message//{command}/Command}
 else
-	quitmessage=${quitmessage//{command}/Alt}
+	quit_message=${quit_message//{command}/Alt}
 fi
-quitmessage=${quitmessage//{minivmac}/^p}
-quitmessage=${quitmessage//“/;[}
-quitmessage=${quitmessage//”/;\{}
-quitmessage=${quitmessage//‘/;]}
-quitmessage=${quitmessage//’/;\}}
+quit_message=${quit_message//{minivmac}/^p}
+quit_message=${quit_message//“/;[}
+quit_message=${quit_message//”/;\{}
+quit_message=${quit_message//‘/;]}
+quit_message=${quit_message//’/;\}}
 
 # MARK: Build the requested platform
 
@@ -92,30 +92,30 @@ then
 	if [[ $platform == "mac-intel" ]]
 	then
 		print "Building Mac (Intel) version…"
-		if [[ ! -z $bundleidintel ]]
+		if [[ ! -z $bundle_id_intel ]]
 		then
-			bundleid=$bundleidintel
+			bundle_id=$bundle_id_intel
 			minimum=10.13
 		fi
 	else
 		print "Building Mac (Apple Silicon) version…"
 	fi
 
-	print "Bundle ID: ${bundleid}"
+	print "Bundle ID: ${bundle_id}"
 
-	local projectpath="${sourcepath}/minivmac.xcodeproj/project.pbxproj"
-	local infopath="${sourcepath}/cfg/Info.plist"
-	local resourcespath="${sourcepath}/mnvm_dat"
-	local iconpath="${sourcepath}/src/ICONAPPO.icns"
+	local project_path="${source_path}/minivmac.xcodeproj/project.pbxproj"
+	local info_path="${source_path}/cfg/Info.plist"
+	local resources_path="${source_path}/mnvm_dat"
+	local icon_path="${source_path}/src/ICONAPPO.icns"
 
-	rm -Rf "${resourcespath}"
-	mkdir -p "${resourcespath}"
-	cp "${filespath}/vMac.ROM" "${resourcespath}/vMac.ROM"
-	cp "${filespath}/${filebase}.dsk" "${resourcespath}/disk1.dsk"
+	rm -Rf "${resources_path}"
+	mkdir -p "${resources_path}"
+	cp "${files_path}/vMac.ROM" "${resources_path}/vMac.ROM"
+	cp "${files_path}/${file_base}.dsk" "${resources_path}/disk1.dsk"
 
-	iconutil -c icns "${filespath}/${filebase}.iconset" -o "${iconpath}"
+	iconutil -c icns "${files_path}/${file_base}.iconset" -o "${icon_path}"
 
-	cd "${sourcepath}"
+	cd "${source_path}"
 	gcc setup/tool.c -o setup_t
 
 	# https://www.gryphel.com/c/minivmac/options.html
@@ -131,23 +131,23 @@ then
 	cd ../
 
 	scripts/xcode.py \
-		--project "${projectpath}" \
-		--info "${infopath}" \
-		--bundleid $bundleid \
-		--name $appname \
-		--build $build \
-		--version $version \
-		--team $team \
-		--minimum $minimum
+		--project "$project_path" \
+		--info "$info_path" \
+		--bundleid "$bundle_id" \
+		--name "$app_name" \
+		--build "$build" \
+		--version "$version" \
+		--team "$team" \
+		--minimum "$minimum"
 
 	scripts/redefine.py \
 		--file "source/src/STRCNENG.h" \
 		--key kStrQuitWarningMessage \
-		--string "${quitmessage}"
+		--string "${quit_message}"
 
 	print ""
 	print "Manual steps:"
-	print " - Open ${sourcepath}/minivmac.xcodeproj."
+	print " - Open ${source_path}/minivmac.xcodeproj."
 	print " - Add a \"Copy Files\" build phase. Select the destination \"Wrapper\" and enter"
 	print "   the subpath \"Contents\". Add the folder \"mnvm_dat\"."
 	print " - Archive, sign, and notarize the app."
@@ -163,28 +163,28 @@ then
 
 	print "Building Windows version…"
 
-	local basepath="${buildpath}/${appname}"
-	local resourcespath="${basepath}/Resources"
-	local zipname="${filebase}-windows.zip"
+	local base_path="${build_path}/${app_name}"
+	local resources_path="${base_path}/Resources"
+	local zip_name="${file_base}-windows.zip"
 
-	mkdir -p "${basepath}"
-	mkdir -p "${resourcespath}"
-	cp "${filespath}/wx64/Mini vMac.exe" "${resourcespath}/Mini vMac.exe"
-	cp "${filespath}/vMac.ROM" "${resourcespath}/vMac.ROM"
-	cp "${filespath}/${filebase}.dsk" "${resourcespath}/disk1.dsk"
+	mkdir -p "${base_path}"
+	mkdir -p "${resources_path}"
+	cp "${files_path}/wx64/Mini vMac.exe" "${resources_path}/Mini vMac.exe"
+	cp "${files_path}/vMac.ROM" "${resources_path}/vMac.ROM"
+	cp "${files_path}/${file_base}.dsk" "${resources_path}/disk1.dsk"
 
 	# Create a shortcut to the exe. This is a pre-made shortcut that uses a
 	# relative path: %COMSPEC% /C "start /b .\Resources\^"Mini vMac.exe^""
-	cp "${filespath}/shortcut.lnk" "${basepath}/${appname}.lnk"
+	cp "${files_path}/shortcut.lnk" "${base_path}/${app_name}.lnk"
 
 	# Create a bat file that launches the exe, an alternative to the shortcut
 	# echo "@echo off\r\nstart /b .\Resources\\\"Mini vMac.exe\"" > \
-	#	"${basepath}/${appname}.bat"
+	#	"${base_path}/${app_name}.bat"
 
-	cd "${buildpath}"
-	rm -f "${zipname}"
-	zip -r "${zipname}" "${appname}" -x "**/.DS_Store" "**/__MACOSX"
-	rm -rf "${appname}"
+	cd "${build_path}"
+	rm -f "${zip_name}"
+	zip -r "${zip_name}" "${app_name}" -x "**/.DS_Store" "**/__MACOSX"
+	rm -rf "${app_name}"
 
 	print "Done"
 	success=true
