@@ -30,14 +30,15 @@ You will also need Python 3 and pbxproj:
 Before you run the script, you'll need to add some files:
 
 - `files/example.config`: A configuration file with various settings used in 
-  the build process. See the example file for the required settings.
+  the build process. The file's base name should match the `file-base` setting 
+  in the file. See the example file for the required settings.
 
 - `files/example.dsk`: A bootable disk image that includes your application. 
-  This can be created using a standard build of Mini vMac. The base file name
+  This can be created using a standard build of Mini vMac. The file's base name
   should match the `file-base` setting in your `config` file.
 
 - `files/example.iconset`: An `iconset` folder including images for the Mac app 
-  icon. The base file name should match the `file-base` setting in your 
+  icon. The file's base name should match the `file-base` setting in your 
   `config` file. This can be created using [free templates available from 
   Apple](https://developer.apple.com/design/resources/).
 
@@ -60,7 +61,8 @@ Here's an example command:
 `./build.sh --platform mac --config example`
 
 Possible platforms are `mac`, `mac-x86`, or `windows`. The `config` argument
-should match the base file name of your `config` file in the `files` folder.
+should match the base name of your `config` file (without the extension) in 
+the `files` folder.
 
 ## Thanks
 
