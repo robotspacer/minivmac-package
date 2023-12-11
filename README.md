@@ -11,7 +11,7 @@ Mac builds require [Xcode](https://developer.apple.com/xcode/). In my testing yo
 - Apple Silicon builds (`mac`): Xcode 12 or later is required. I have mainly 
   tested with Xcode 15.0.1.
 
-- Intel builds (`mac-x86`): Xcode 9.4.1 (on macOS 10.13.6) through 11.7
+- Intel builds (`mac-intel`): Xcode 9.4.1 (on macOS 10.13.6) through 11.7
   (on macOS 11.6.8) works well in my testing. Later versions will create an
   Intel build that does not play sound. Tested with Mini vMac 37.03.
 
@@ -60,7 +60,7 @@ Before you run the script, you'll need to add some files:
 Here's an example command:
 `./build.sh --platform mac --config example`
 
-Possible platforms are `mac`, `mac-x86`, or `windows`. The `config` argument
+Possible platforms are `mac`, `mac-intel`, or `windows`. The `config` argument
 should match the base name of your `config` file (without the extension) in 
 the `files` folder.
 

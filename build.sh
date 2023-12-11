@@ -6,7 +6,7 @@
 # MARK: Parse arguments
 
 function show_usage {
-	echo >&2 "Usage: $1 --platform (mac|mac-x86|windows) --config example"
+	echo >&2 "Usage: $1 --platform (mac|mac-intel|windows) --config example"
 }
 
 zparseopts -D -E -F -A args -- \
@@ -38,7 +38,7 @@ local appname=
 local version=
 local build=
 local bundleid=
-local bundleidx86=
+local bundleidintel=
 local team=
 local filebase=
 local quitmessage="Open the “File” menu and choose “Quit” or press {command}-Q on your keyboard to quit the current application. On the desktop, open the “Special” menu and choose “Shut Down.” Once the system has shut down, you can close {minivmac}."
@@ -50,14 +50,14 @@ do
 		local key=$match[1]
 		local value=$match[2]
 		case $key in
-			"app-name")      appname=$value;;
-			"version")       version=$value;;
-			"build")         build=$value;;
-			"bundle-id")     bundleid=$value;;
-			"bundle-id-x86") bundleidx86=$value;;
-			"team")          team=$value;;
-			"file-base")     filebase=$value;;
-			"quit-message")  quitmessage=$value;;
+			"app-name")        appname=$value;;
+			"version")         version=$value;;
+			"build")           build=$value;;
+			"bundle-id")       bundleid=$value;;
+			"bundle-id-intel") bundleidintel=$value;;
+			"team")            team=$value;;
+			"file-base")       filebase=$value;;
+			"quit-message")    quitmessage=$value;;
 		esac
 	fi
 done < "${filespath}/${config}.config"
@@ -70,7 +70,7 @@ fi
 
 # MARK: Create the quit message
 
-if [[ $platform == "mac" || $platform == "mac-x86" ]]
+if [[ $platform == "mac" || $platform == "mac-intel" ]]
 then
 	quitmessage=${quitmessage//{command}/Command}
 else
@@ -84,17 +84,17 @@ quitmessage=${quitmessage//’/;\}}
 
 # MARK: Build the requested platform
 
-if [[ $platform == "mac" || $platform == "mac-x86" ]]
+if [[ $platform == "mac" || $platform == "mac-intel" ]]
 then
 
 	local minimum=11.0
 
-	if [[ $platform == "mac-x86" ]]
+	if [[ $platform == "mac-intel" ]]
 	then
 		print "Building Mac (Intel) version…"
-		if [[ ! -z $bundleidx86 ]]
+		if [[ ! -z $bundleidintel ]]
 		then
-			bundleid=$bundleidx86
+			bundleid=$bundleidintel
 			minimum=10.13
 		fi
 	else
@@ -119,7 +119,7 @@ then
 	gcc setup/tool.c -o setup_t
 
 	# https://www.gryphel.com/c/minivmac/options.html
-	if [[ $platform == "mac-x86" ]]
+	if [[ $platform == "mac-intel" ]]
 	then
 		./setup_t -t mc64 -magnify 1 -speed z -bg 1 -svl 1 -sbx 1 > setup.sh	
 	else
