@@ -62,7 +62,13 @@ do
 	fi
 done < "${files_path}/${config}.config"
 
-if [[ -z $app_name || -z $version || -z $build || -z $bundle_id || -z $team || -z $file_base || -z $quit_message ]]
+if [[ -z $app_name ||
+      -z $version ||
+      -z $build ||
+      -z $bundle_id ||
+      -z $team ||
+      -z $file_base ||
+      -z $quit_message ]]
 then
 	echo >&2 "Your config file is incomplete"
 	exit 1
@@ -70,7 +76,8 @@ fi
 
 # MARK: Create the quit message
 
-if [[ $platform == "mac" || $platform == "mac-intel" ]]
+if [[ $platform == "mac" ||
+      $platform == "mac-intel" ]]
 then
 	quit_message=${quit_message//{command}/Command}
 else
@@ -84,7 +91,8 @@ quit_message=${quit_message//’/;\}}
 
 # MARK: Build the requested platform
 
-if [[ $platform == "mac" || $platform == "mac-intel" ]]
+if [[ $platform == "mac" ||
+      $platform == "mac-intel" ]]
 then
 
 	local minimum=11.0
@@ -108,16 +116,18 @@ then
 	local resources_path="${source_path}/mnvm_dat"
 	local icon_path="${source_path}/src/ICONAPPO.icns"
 
+	# Copy resources to the source directory
 	rm -Rf "${resources_path}"
 	mkdir -p "${resources_path}"
 	cp "${files_path}/vMac.ROM" "${resources_path}/vMac.ROM"
 	cp "${files_path}/${file_base}.dsk" "${resources_path}/disk1.dsk"
 
+	# Replace the icon
 	iconutil -c icns "${files_path}/${file_base}.iconset" -o "${icon_path}"
 
+	# Set up the build script
 	cd "${source_path}"
 	gcc setup/tool.c -o setup_t
-
 	# https://www.gryphel.com/c/minivmac/options.html
 	if [[ $platform == "mac-intel" ]]
 	then
@@ -125,11 +135,11 @@ then
 	else
 		./setup_t -t mcar -magnify 1 -speed z -bg 1 -svl 1 -sbx 1 > setup.sh
 	fi
-
 	chmod +x ./setup.sh
 	./setup.sh
 	cd ../
 
+	# Update the Xcode project
 	scripts/xcode.py \
 		--project "$project_path" \
 		--info "$info_path" \
@@ -140,20 +150,20 @@ then
 		--team "$team" \
 		--minimum "$minimum"
 
+	# Update the quit message
 	scripts/redefine.py \
 		--file "source/src/STRCNENG.h" \
 		--key kStrQuitWarningMessage \
 		--string "${quit_message}"
 
+	print "Done"
 	print ""
 	print "Manual steps:"
-	print " - Open ${source_path}/minivmac.xcodeproj."
+	print " - Open ${source_path}/minivmac.xcodeproj in Xcode."
 	print " - Add a \"Copy Files\" build phase. Select the destination \"Wrapper\" and enter"
 	print "   the subpath \"Contents\". Add the folder \"mnvm_dat\"."
 	print " - Archive, sign, and notarize the app."
-	print ""
 
-	print "Done"
 	success=true
 
 fi
@@ -229,6 +239,7 @@ then
 	# echo "@echo off\r\nstart /b .\Resources\\\"Mini vMac.exe\"" > \
 	#	"${base_path}/${app_name}.bat"
 
+	# Zip the files
 	cd "${build_path}"
 	rm -f "${zip_name}"
 	zip -r "${zip_name}" "${app_name}" -x "**/.DS_Store" "**/__MACOSX"
