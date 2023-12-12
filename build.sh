@@ -164,12 +164,60 @@ then
 	print "Building Windows version…"
 
 	local base_path="${build_path}/${app_name}"
+	local executable_path="${build_path}/minivmac-wx64.exe"
 	local resources_path="${base_path}/Resources"
 	local zip_name="${file_base}-windows.zip"
 
+	if [ ! -f $executable_path ]
+	then
+
+		# Set up the build script
+		cd "${source_path}"
+		gcc setup/tool.c -o setup_t
+		# https://www.gryphel.com/c/minivmac/options.html
+		./setup_t -e mgw -t wx64 -magnify 1 -speed z -bg 1 -svl 1 > setup.sh
+		# Fix unexpected \x{FEFF} characters
+		sed 's/﻿printf/printf/g' setup.sh > setup-new.sh
+		mv setup-new.sh setup.sh
+		chmod +x ./setup.sh
+		./setup.sh
+		cd ../
+
+		# Update the quit message
+		scripts/redefine.py \
+			--file "source/src/STRCNENG.h" \
+			--key kStrQuitWarningMessage \
+			--string "${quit_message}"
+
+		cd "${source_path}"
+
+		# Update the Makefile to use MinGW-w64 
+		local gcc="gcc=x86_64-w64-mingw32-gcc"
+		local strip="strip=x86_64-w64-mingw32-strip"
+		local windres="windres=x86_64-w64-mingw32-windres"
+		local makefile=$(sed 's/gcc.exe/$(gcc)/g' Makefile)
+		makefile=$(sed 's/strip.exe/$(strip)/g' <<< $makefile)
+		makefile=$(sed 's/windres.exe/$(windres)/g' <<< $makefile)
+		makefile=$(sed 's/^\(mk_COptionsCommon = .*\)$/\1 -Wno-unused-function /g' <<< $makefile)
+		makefile="$gcc\n$strip\n$windres\n\n$makefile"
+		echo "$makefile" > Makefile
+
+		# Build the executable
+		make clean
+		make
+		cp "minivmac.exe" "../${executable_path}"
+		cd ../
+
+	else
+
+		print "Using existing executable…"
+
+	fi
+
+	# Copy resources
 	mkdir -p "${base_path}"
 	mkdir -p "${resources_path}"
-	cp "${files_path}/wx64/Mini vMac.exe" "${resources_path}/Mini vMac.exe"
+	cp "${executable_path}" "${resources_path}/Mini vMac.exe"
 	cp "${files_path}/vMac.ROM" "${resources_path}/vMac.ROM"
 	cp "${files_path}/${file_base}.dsk" "${resources_path}/disk1.dsk"
 

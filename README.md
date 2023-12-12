@@ -4,7 +4,7 @@ This is a package of tools to assist in bundling classic Mac applications with [
 
 ## Requirements
 
-This has only been tested on a Mac with macOS 14, but creating Windows builds should work on any computer that can run `zsh` scripts.
+This has primarily been tested on a Mac with macOS 14. Creating Windows builds should work on a Mac or Linux computer that can run `zsh` scripts. Creating Mac builds requires a Mac.
 
 Mac builds require [Xcode](https://developer.apple.com/xcode/). In my testing you will need a different version of Xcode, and thus a different version of macOS, depending on what you're trying to build.
 
@@ -15,15 +15,16 @@ Mac builds require [Xcode](https://developer.apple.com/xcode/). In my testing yo
   (on macOS 11.6.8) works well in my testing. Later versions will create an
   Intel build that does not play sound. Tested with Mini vMac 37.03.
 
-You will also need Python 3 and pbxproj:
+Mac builds also require Python 3 and pbxproj. Here's how you can install them using [Homebrew](https://brew.sh):
 
-  - Install [Homebrew](https://brew.sh)
   - `brew install python`
   - `pip3 install pbxproj`
   - `brew info python` and find the path after the line that says
     "They will install into the site-package directory"
   - Using that path, add this line to `~/.zshrc`:
-  `export PYTHONPATH=$PYTHONPATH:<path>`
+    `export PYTHONPATH=$PYTHONPATH:<path>`
+
+Windows builds require [MinGW-w64](https://www.mingw-w64.org). You can install this using [Homebrew](https://brew.sh) with `brew install mingw-w64`. It may also be necessary to install GCC and Clang (this isn't necessary on a Mac as long as you have Xcode installed).
 
 ## Setting things up
 
@@ -44,16 +45,9 @@ Before you run the script, you'll need to add some files:
 
 - `files/vMac.ROM`: A Mac Plus ROM file.
 
-- `files/wx64/Mini vMac.exe`: A copy of Mini vMac for Windows (64-bit). For 
-  best results, use the [variations
-  service](https://www.gryphel.com/c/minivmac/vart_srv.html) with these 
-  settings: `-br 36 -t wx64 -magnify 1 -speed z -bg 1 -svl 1`. These settings 
-  enable magnified mode by default, set the speed to 1×, and set the system 
-  volume to 1.
-
 - `source`: The [Mini vMac source 
-  code](https://www.gryphel.com/c/minivmac/beta.html). To build a version for 
-  Apple Silicon, this must be version 37 or later.
+  code](https://www.gryphel.com/c/minivmac/beta.html). This script has only 
+  been tested with version 37.03.
 
 ## Building a package
 

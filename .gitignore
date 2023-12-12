@@ -14,7 +14,6 @@ files/*
 !files/example.iconset
 !files/README.md
 !files/shortcut.lnk
-!files/wx64/README.md
 
 # Graphics
 graphics/*
