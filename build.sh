@@ -6,7 +6,7 @@
 # MARK: Parse arguments
 
 function show_usage {
-	echo >&2 "Usage: $1 --platform (mac|mac-intel|windows) --config example"
+	echo >&2 "Usage: $1 --platform (mac|mac-intel|windows|dsk) --config example"
 }
 
 zparseopts -D -E -F -A args -- \
@@ -43,6 +43,7 @@ local build=
 local bundle_id=
 local bundle_id_intel=
 local team=
+local read_me=
 local file_base=
 local quit_message="Open the “File” menu and choose “Quit” or press {command}-Q on your keyboard to quit the current application. On the desktop, open the “Special” menu and choose “Shut Down.” Once the system has shut down, you can close {minivmac}."
 
@@ -59,6 +60,7 @@ do
 			"bundle-id")       bundle_id=$value;;
 			"bundle-id-intel") bundle_id_intel=$value;;
 			"team")            team=$value;;
+			"read-me")         read_me=$value;;
 			"file-base")       file_base=$value;;
 			"quit-message")    quit_message=$value;;
 		esac
@@ -274,6 +276,27 @@ then
 	rm -f "${zip_name}"
 	zip -r "${zip_name}" "${app_name}" -x "**/.DS_Store" "**/__MACOSX"
 	rm -rf "${app_name}"
+
+	print "Done"
+	success=true
+
+fi
+
+if [[ $platform == "dsk" ]]
+then
+
+	print "Building disk image version…"
+
+	local zip_path="../${build_path}/${file_base}.dsk.zip"
+
+	# Zip the files
+	cd "${files_path}"
+	rm -f "${zip_path}"
+	zip "${zip_path}" "${file_base}.dsk"
+	if [[ ! -z $read_me ]]
+	then
+		zip "${zip_path}" "${read_me}"
+	fi
 
 	print "Done"
 	success=true
