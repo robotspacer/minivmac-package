@@ -29,6 +29,9 @@ fi
 
 # MARK: Set variables
 
+local maintainer="Paul C. Pratt"
+local homepage="https://www.gryphel.com"
+
 local build_path="builds"
 local files_path="files"
 local source_path="source"
@@ -131,9 +134,27 @@ then
 	# https://www.gryphel.com/c/minivmac/options.html
 	if [[ $platform == "mac-intel" ]]
 	then
-		./setup_t -t mc64 -magnify 1 -speed z -bg 1 -svl 1 -sbx 1 > setup.sh	
+		./setup_t \
+			-t mc64 \
+			-magnify 1 \
+			-speed z \
+			-bg 1 \
+			-svl 1 \
+			-sbx 1 \
+			-maintainer "${maintainer}" \
+			-homepage "${homepage}" \
+			> setup.sh	
 	else
-		./setup_t -t mcar -magnify 1 -speed z -bg 1 -svl 1 -sbx 1 > setup.sh
+		./setup_t \
+			-t mcar \
+			-magnify 1 \
+			-speed z \
+			-bg 1 \
+			-svl 1 \
+			-sbx 1 \
+			-maintainer "${maintainer}" \
+			-homepage "${homepage}" \
+			> setup.sh
 	fi
 	chmod +x ./setup.sh
 	./setup.sh
@@ -185,7 +206,16 @@ then
 		cd "${source_path}"
 		gcc setup/tool.c -o setup_t
 		# https://www.gryphel.com/c/minivmac/options.html
-		./setup_t -e mgw -t wx64 -magnify 1 -speed z -bg 1 -svl 1 > setup.sh
+		./setup_t \
+			-e mgw \
+			-t wx64 \
+			-magnify 1 \
+			-speed z \
+			-bg 1 \
+			-svl 1 \
+			-maintainer "${maintainer}" \
+			-homepage "${homepage}" \
+			> setup.sh
 		# Fix unexpected \x{FEFF} characters
 		sed 's/﻿printf/printf/g' setup.sh > setup-new.sh
 		mv setup-new.sh setup.sh
